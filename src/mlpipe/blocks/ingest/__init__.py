@@ -1,10 +1,9 @@
-# Import all ingest blocks to register them
-try:
-    from . import csv_loader
-except ImportError:
-    pass
+"""
+Data ingestion blocks.
 
-try:
-    from . import higgs_loader
-except ImportError:
-    pass  # Optional dependency
+Import individual blocks as needed:
+    from mlpipe.blocks.ingest.csv_loader import UniversalCSVLoader
+    from mlpipe.blocks.ingest.higgs_loader import HiggsLoader  # if available
+"""
+
+# No eager imports - maximum modularity

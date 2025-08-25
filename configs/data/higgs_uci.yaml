@@ -9,42 +9,30 @@ block: ingest.csv
 file_path: "data/HIGGS_100k.csv"  # Path to your CSV file (relative to project root)
 target_column: "label"             # Column containing the target/label
 
+# === AUTO-DOWNLOAD SETTINGS ===
+auto_download: true                # Automatically download dataset if not found
+download_url: "https://archive.ics.uci.edu/ml/machine-learning-databases/00280/HIGGS.csv.gz"
+download_info:
+  description: "HIGGS UCI Dataset - High Energy Physics binary classification"
+  source: "UCI Machine Learning Repository"
+  size_mb: 2900  # Approximate size in MB
+  samples: 11000000  # Full dataset size
+  note: "We'll use first 100k samples for faster processing"
+
 # === DATASET STRUCTURE ===
-has_header: false                  # HIGGS dataset has no header row
+has_header: true                   # The downloaded file has headers (added during processing)
 separator: ","                     # CSV separator (auto-detected if not specified)
 encoding: "utf-8"                  # File encoding
 
-# Column names for HIGGS dataset (29 columns total)
-column_names:
-  - "label"                        # Target: 1=signal, 0=background
-  - "lepton_pT"                    # Lepton transverse momentum
-  - "lepton_eta"                   # Lepton pseudorapidity
-  - "lepton_phi"                   # Lepton azimuthal angle
-  - "missing_energy_magnitude"     # Missing energy magnitude
-  - "missing_energy_phi"           # Missing energy azimuthal angle
-  - "jet_1_pt"                     # Leading jet transverse momentum
-  - "jet_1_eta"                    # Leading jet pseudorapidity
-  - "jet_1_phi"                    # Leading jet azimuthal angle
-  - "jet_1_b_tag"                  # Leading jet b-tag
-  - "jet_2_pt"                     # Second jet transverse momentum
-  - "jet_2_eta"                    # Second jet pseudorapidity
-  - "jet_2_phi"                    # Second jet azimuthal angle
-  - "jet_2_b_tag"                  # Second jet b-tag
-  - "jet_3_pt"                     # Third jet transverse momentum
-  - "jet_3_eta"                    # Third jet pseudorapidity
-  - "jet_3_phi"                    # Third jet azimuthal angle
-  - "jet_3_b_tag"                  # Third jet b-tag
-  - "jet_4_pt"                     # Fourth jet transverse momentum
-  - "jet_4_eta"                    # Fourth jet pseudorapidity
-  - "jet_4_phi"                    # Fourth jet azimuthal angle
-  - "jet_4_b_tag"                  # Fourth jet b-tag
-  - "m_jj"                         # Invariant mass of two jets
-  - "m_jjj"                        # Invariant mass of three jets
-  - "m_lv"                         # Invariant mass of lepton and neutrino
-  - "m_jlv"                        # Invariant mass of jet, lepton and neutrino
-  - "m_bb"                         # Invariant mass of b-tagged jets
-  - "m_wbb"                        # Invariant mass of W boson and b-tagged jets
-  - "m_wwbb"                       # Invariant mass of two W bosons and b-tagged jets
+# Column names for HIGGS dataset (29 columns total) - defined in the downloaded file headers
+# column_names not needed since has_header: true means we use the headers from the file
+  # - "m_jj"                         # Invariant mass of two jets
+  # - "m_jjj"                        # Invariant mass of three jets
+  # - "m_lv"                         # Invariant mass of lepton and neutrino
+  # - "m_jlv"                        # Invariant mass of jet, lepton and neutrino
+  # - "m_bb"                         # Invariant mass of b-tagged jets
+  # - "m_wbb"                        # Invariant mass of W boson and b-tagged jets
+  # - "m_wwbb"                       # Invariant mass of two W bosons and b-tagged jets
 
 # === DATA SAMPLING (Optional) ===
 nrows: 100000                      # Limit to first 100k rows for faster processing

@@ -54,8 +54,70 @@ class UniversalCSVLoader(DataIngestor):
         self.validation = config.get('validation', True)  # Perform data validation
         self.verbose = config.get('verbose', True)
         
+        # Auto-download options
+        self.auto_download = config.get('auto_download', False)
+        self.download_url = config.get('download_url', None)
+        self.download_info = config.get('download_info', {})
+        
         # Store config for reference
         self.config = config
+    
+    def _download_dataset(self, target_path: Path):
+        """Download dataset from URL if auto_download is enabled."""
+        if not self.auto_download or not self.download_url:
+            return False
+            
+        if self.verbose:
+            print(f"📥 Auto-downloading dataset...")
+            if self.download_info.get('description'):
+                print(f"   📋 {self.download_info['description']}")
+            if self.download_info.get('size_mb'):
+                print(f"   📦 Size: ~{self.download_info['size_mb']} MB")
+            print(f"   🔗 URL: {self.download_url}")
+        
+        try:
+            import requests
+            import gzip
+            
+            # Create target directory if it doesn't exist
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Download the file
+            response = requests.get(self.download_url, stream=True)
+            response.raise_for_status()
+            
+            # Check if it's a gzipped file
+            if self.download_url.endswith('.gz'):
+                # Download and decompress
+                with gzip.open(response.raw, 'rt', encoding=self.encoding) as gz_file:
+                    # For HIGGS dataset, we only want first 100k rows
+                    nrows_limit = self.nrows or 100000
+                    with open(target_path, 'w', encoding=self.encoding) as out_file:
+                        # Add header if needed
+                        if not self.has_header and target_path.name == 'HIGGS_100k.csv':
+                            header = "label,lepton_pT,lepton_eta,lepton_phi,missing_energy_magnitude,missing_energy_phi,jet_1_pt,jet_1_eta,jet_1_phi,jet_1_b_tag,jet_2_pt,jet_2_eta,jet_2_phi,jet_2_b_tag,jet_3_pt,jet_3_eta,jet_3_phi,jet_3_b_tag,jet_4_pt,jet_4_eta,jet_4_phi,jet_4_b_tag,m_jj,m_jjj,m_lv,m_jlv,m_bb,m_wbb,m_wwbb\n"
+                            out_file.write(header)
+                        
+                        # Write limited number of rows
+                        for i, line in enumerate(gz_file):
+                            if i >= nrows_limit:
+                                break
+                            out_file.write(line)
+            else:
+                # Regular file download
+                with open(target_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            
+            if self.verbose:
+                print(f"✅ Dataset downloaded successfully: {target_path}")
+            
+            return True
+            
+        except Exception as e:
+            if self.verbose:
+                print(f"❌ Download failed: {e}")
+            return False
     def _validate_file_path(self) -> Path:
         """Validate and resolve file path."""
         if not self.file_path:
@@ -78,14 +140,34 @@ class UniversalCSVLoader(DataIngestor):
                     path = p
                     break
             else:
-                if self.verbose:
-                    print(f"⚠️  File not found in standard locations:")
-                    for p in possible_paths:
-                        print(f"   - {p}")
-                raise FileNotFoundError(f"CSV file not found: {self.file_path}")
+                # File not found, try to download it
+                if self.auto_download:
+                    # Try downloading to the first possible path
+                    download_path = possible_paths[0]
+                    if self._download_dataset(download_path):
+                        path = download_path
+                    else:
+                        if self.verbose:
+                            print(f"⚠️  File not found and download failed:")
+                            for p in possible_paths:
+                                print(f"   - {p}")
+                        raise FileNotFoundError(f"CSV file not found and download failed: {self.file_path}")
+                else:
+                    if self.verbose:
+                        print(f"⚠️  File not found in standard locations:")
+                        for p in possible_paths:
+                            print(f"   - {p}")
+                    raise FileNotFoundError(f"CSV file not found: {self.file_path}")
         
         if not path.exists():
-            raise FileNotFoundError(f"CSV file not found: {path}")
+            # Try to download if auto_download is enabled
+            if self.auto_download:
+                if self._download_dataset(path):
+                    pass  # Download successful
+                else:
+                    raise FileNotFoundError(f"CSV file not found and download failed: {path}")
+            else:
+                raise FileNotFoundError(f"CSV file not found: {path}")
         
         if self.verbose:
             print(f"📁 Loading CSV from: {path}")

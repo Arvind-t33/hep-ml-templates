@@ -9,12 +9,12 @@ def run_pipeline(pipeline: str, config_path: str, config_name: str, overrides=No
 
     # 1) ingest
     data_cfg = cfg["data"]
-    path = data_cfg["path"]
+    path = data_cfg.get("file_path", data_cfg.get("path"))  # Support both field names
     if "demo_tabular.csv" in str(path):
         maybe_make_demo_csv(path)
     Ingest = get(data_cfg["block"])               # "ingest.csv"
-    ing = Ingest(path=path, label=data_cfg["label"], **{k: v for k, v in data_cfg.items() if k not in ['block', 'path', 'label']})
-    X, y = ing.load()
+    ing = Ingest(config=data_cfg)  # Pass entire config to the CSV loader
+    X, y, metadata = ing.load()  # Unpack all 3 return values
 
     # 2) feature engineering (optional)
     feat_cfg = cfg.get("feature_eng", {})

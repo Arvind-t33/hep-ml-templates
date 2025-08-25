@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 from mlpipe.core.registry import list_blocks
 from mlpipe.pipelines.xgb_basic.run import run_pipeline
+from mlpipe.cli.local_install import install_local
 import mlpipe.blocks  # Import to register all blocks
 
 def list_available_configs(config_path: str = "configs"):
@@ -59,6 +60,12 @@ def main():
     
     p_list_configs = sub.add_parser("list-configs", help="List available configurations")
     p_list_configs.add_argument("--config-path", default="configs")
+    
+    # Add local installation command
+    p_install = sub.add_parser("install-local", help="Install blocks and configs locally to your project")
+    p_install.add_argument("extras", nargs="+", help="Extras to install locally (e.g., model-xgb data-higgs)")
+    p_install.add_argument("--blocks-dir", required=True, help="Directory where to install blocks")
+    p_install.add_argument("--configs-dir", help="Directory where to install configs (default: <blocks-dir>/configs)")
 
     args = parser.parse_args()
     
@@ -72,6 +79,10 @@ def main():
                 print(f"  {name}")
         elif args.cmd == "list-configs":
             list_available_configs(args.config_path)
+        elif args.cmd == "install-local":
+            success = install_local(args.extras, args.blocks_dir, args.configs_dir)
+            if not success:
+                exit(1)
     except FileNotFoundError as e:
         if ".yaml" in str(e):
             print(f"❌ Error: Configuration file not found")
