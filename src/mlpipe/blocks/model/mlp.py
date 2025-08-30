@@ -13,7 +13,7 @@ from mlpipe.core.registry import register
 
 
 @register("model.mlp")
-class MLPBlock(ModelBlock):
+class MLPModel(ModelBlock):
     """
     Multi-layer Perceptron - simple neural network.
 

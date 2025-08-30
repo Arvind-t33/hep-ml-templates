@@ -20,8 +20,8 @@ from mlpipe.core.interfaces import ModelBlock
 from mlpipe.core.registry import register
 
 
-@register("model.gnn_gcn")
-class GCNClassifier(ModelBlock):
+@register("model.gcn")
+class GCNModel(ModelBlock):
     """
     Graph Convolutional Network for node/graph classification.
 
@@ -188,8 +188,8 @@ class GCNNet(nn.Module):
         return x
 
 
-@register("model.gnn_gat")
-class GATClassifier(GCNClassifier):
+@register("model.gat")
+class GATModel(GCNModel):
     """
     Graph Attention Network for more sophisticated attention-based learning.
 

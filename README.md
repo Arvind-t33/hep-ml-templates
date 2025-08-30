@@ -56,8 +56,8 @@ YAML-driven workflows with CLI overrides keep code stable while you iterate:
 
 ```bash
 # Swap components at runtime
-mlpipe run --overrides model=xgb_classifier data=higgs_100k
-mlpipe run --overrides model.params.max_depth=8 preprocessing=time_series_split
+mlpipe run --overrides model=xgb_classifier data=higgs_uci
+mlpipe run --overrides model.params.max_depth=8 preprocessing=data_split
 ```
 
 ### 4. **Extras System** - Selective Installation
@@ -88,7 +88,7 @@ mlpipe install-local model-xgb evaluation data-higgs --target-dir ./my-hep-proje
 cd ./my-hep-project && pip install -e .
 
 # 4) Run the pipeline (components are configurable)
-mlpipe run --overrides model=xgb_classifier data=higgs_100k
+mlpipe run --overrides model=xgb_classifier data=higgs_uci
 ```
 
 **Alternative manager-style interface:**
@@ -106,41 +106,41 @@ mlpipe-manager install model-xgb ./my-project
 
 ### 🎯 **Complete Pipelines** (4)
 End-to-end workflows with model + preprocessing + evaluation:
-- `pipeline-xgb` - XGBoost pipeline with preprocessing and metrics
-- `pipeline-decision-tree` - Decision tree complete workflow 
-- `pipeline-torch` - PyTorch neural network pipeline
-- `pipeline-gnn` - Graph neural network pipeline
+- `pipeline-xgb` (5 blocks, 8 configs) - XGBoost pipeline with preprocessing and metrics
+- `pipeline-decision-tree` (5 blocks, 8 configs) - Decision tree complete workflow 
+- `pipeline-torch` (4 blocks, 6 configs) - PyTorch neural network pipeline
+- `pipeline-gnn` (4 blocks, 6 configs) - Graph neural network pipeline
 
 ### 🧠 **Individual Models** (11)
 Single algorithms with unified interfaces:
 
 **Traditional ML:**
-- `model-decision-tree`, `model-random-forest`, `model-svm`
-- `model-xgb`, `model-mlp`, `model-adaboost`, `model-ensemble`
+- `model-decision-tree` (1 blocks, 1 configs), `model-random-forest` (1 blocks, 1 configs), `model-svm` (1 blocks, 1 configs)
+- `model-xgb` (1 blocks, 1 configs), `model-mlp` (1 blocks, 1 configs), `model-adaboost` (1 blocks, 1 configs), `model-ensemble` (1 blocks, 1 configs)
 
 **Neural & Graph Models:**
-- `model-torch` (PyTorch neural networks)
-- `model-cnn` (Convolutional networks)
-- `model-gnn` (Graph neural networks via PyTorch Geometric)
-- `model-transformer` (Transformer architectures)
+- `model-torch` (1 blocks, 3 configs) (PyTorch neural networks)
+- `model-cnn` (1 blocks, 1 configs) (Convolutional networks)
+- `model-gnn` (1 blocks, 3 configs) (Graph neural networks via PyTorch Geometric)
+- `model-transformer` (1 blocks, 1 configs) (Transformer architectures)
 
 ### ⚡ **Algorithm Combos** (9)
 Model + preprocessing bundles for quick setup:
-- `xgb`, `decision-tree`, `random-forest`, `svm`, `mlp`
-- `ensemble`, `torch`, `gnn`, `adaboost`
+- `xgb` (2 blocks, 2 configs), `decision-tree` (2 blocks, 2 configs), `random-forest` (2 blocks, 2 configs), `svm` (2 blocks, 2 configs), `mlp` (2 blocks, 2 configs)
+- `ensemble` (2 blocks, 2 configs), `torch` (2 blocks, 2 configs), `gnn` (2 blocks, 2 configs), `adaboost` (2 blocks, 2 configs)
 
 ### 📊 **Data Sources** (3)
-- `data-higgs` - HIGGS benchmark dataset (validated integration)
-- `data-csv` - Universal CSV loader with flexible configuration
-- `data-split` - Advanced train/val/test splitting utilities
+- `data-higgs` (1 blocks, 1 configs) - HIGGS benchmark dataset (validated integration)
+- `data-csv` (1 blocks, 1 configs) - Universal CSV loader with flexible configuration
+- `data-split` (1 blocks, 1 configs) - Advanced train/val/test splitting utilities
 
 ### 🏗️ **Component Categories** (3)
-- `preprocessing` - Scaling, feature engineering, data splitting
-- `evaluation` - Classification metrics, reconstruction metrics
-- `feature-eng` - Feature engineering demonstrations
+- `preprocessing` (3 blocks, 2 configs) - Scaling, feature engineering, data splitting
+- `evaluation` (2 blocks, 2 configs) - Classification metrics, reconstruction metrics
+- `feature-eng` (1 blocks, 2 configs) - Feature engineering demonstrations
 
 ### 🌟 **Special** (1)
-- `all` - Complete bundle (16 blocks, 27 configurations)
+- `all` (16 blocks, 27 configs) - Complete bundle
 
 ---
 
@@ -192,10 +192,10 @@ predictions = model.predict_proba(X_test_scaled)[:, 1]
 
 **After (with hep-ml-templates):**
 ```python
-from mlpipe.blocks.model.ensemble_models import RandomForestBlock  # Change 1
+from mlpipe.blocks.model.ensemble_models import RandomForestModel  # Change 1
 
 config = {'n_estimators': 100, 'random_state': 42}
-model = RandomForestBlock()                                        # Change 2
+model = RandomForestModel()                                        # Change 2
 model.build(config)
 model.fit(X_train, y_train)                                        # Change 3 - preprocessing handled internally
 predictions = model.predict_proba(X_test)[:, 1]
@@ -203,8 +203,8 @@ predictions = model.predict_proba(X_test)[:, 1]
 
 **Swap to XGBoost:**
 ```python
-from mlpipe.blocks.model.xgb_classifier import XGBClassifierBlock  # Only import changes
-model = XGBClassifierBlock()                                       # Only class name changes
+from mlpipe.blocks.model.xgb_classifier import XGBClassifierModel  # Only import changes
+model = XGBClassifierModel()                                       # Only class name changes
 model.build({'n_estimators': 200, 'learning_rate': 0.1})
 ```
 
@@ -240,17 +240,17 @@ splits = splitter.fit_transform(X, y)
 
 ### **Pipeline Integration:**
 ```bash
-# Use pre-configured splitting strategies
-mlpipe run --overrides preprocessing=train_val_test_split
-mlpipe run --overrides preprocessing=stratified_split
-mlpipe run --overrides preprocessing=time_series_split
+# Use pre-configured processing strategies
+mlpipe run --overrides preprocessing=data_split
+mlpipe run --overrides preprocessing=standard
+mlpipe run --overrides feature_eng=column_selector
 ```
 
 ### **Configuration Examples:**
 
 **Stratified 70/15/15 Split:**
 ```yaml
-# configs/preprocessing/stratified_split.yaml
+# configs/preprocessing/data_split.yaml
 train_size: 0.7
 val_size: 0.15
 test_size: 0.15
@@ -259,46 +259,152 @@ shuffle: true
 random_state: 42
 ```
 
-**Time Series Split (No Shuffle):**
+**Standard Preprocessing:**
 ```yaml
-# configs/preprocessing/time_series_split.yaml
-train_size: 0.7
-val_size: 0.15
-test_size: 0.15
-time_series: true
-shuffle: false
-time_column: "timestamp"  # optional
+# configs/preprocessing/standard.yaml
+with_mean: true
+with_std: true
+copy: true
 ```
 
 ---
 
-## 💻 CLI Reference
+## 💻 Complete CLI Reference
 
 ### **Embedded CLI (`mlpipe`)**
+
+#### **Discovery & Configuration Commands**
 ```bash
-# Discovery & Planning
-mlpipe list-extras                                      # Show all available extras
-mlpipe extra-details model-xgb                         # Inspect specific extra
-mlpipe preview-install model-xgb evaluation            # Preview installation
-mlpipe validate-extras                                  # Validate extras system
+# List all available blocks (registered components)
+mlpipe list-blocks
 
-# Installation & Setup
-mlpipe install-local model-xgb data-higgs --target-dir ./project
+# List all available configurations with usage examples
+mlpipe list-configs [--config-path CONFIGS_DIR]
 
-# Execution & Experimentation
-mlpipe run                                              # Use default pipeline
-mlpipe run --overrides model=xgb_classifier            # Override model
-mlpipe run --overrides data=higgs_100k model=decision_tree  # Multiple overrides
-mlpipe run --overrides model.params.max_depth=8        # Parameter overrides
+# Discover available extras and their contents
+mlpipe list-extras                                      # Show all available extras by category
+
+# Inspect specific extras before installing
+mlpipe extra-details EXTRA_NAME                        # Show detailed breakdown of blocks/configs
+mlpipe extra-details model-xgb                         # Example: inspect XGBoost extra
+
+# Preview installations before committing
+mlpipe preview-install EXTRA1 [EXTRA2 ...]            # Preview what would be installed
+mlpipe preview-install model-xgb evaluation            # Example: preview installation
+
+# Validate the extras system integrity
+mlpipe validate-extras                                  # Check all extras mappings are valid
 ```
 
-### **Optional Manager CLI (`mlpipe-manager`)**
+#### **Installation & Setup Commands**
 ```bash
-mlpipe-manager list                                     # List extras
-mlpipe-manager validate                                 # Validate system
-mlpipe-manager details model-xgb                       # Show details
-mlpipe-manager preview model-xgb evaluation            # Preview install
-mlpipe-manager install model-xgb ./my-project          # Install to directory
+# Install extras locally to create standalone projects
+mlpipe install-local EXTRA1 [EXTRA2 ...] --target-dir TARGET_DIR
+
+# Examples:
+mlpipe install-local model-xgb --target-dir ./my-xgb-project
+mlpipe install-local model-decision-tree data-higgs evaluation --target-dir ./research-project
+mlpipe install-local all --target-dir ./complete-ml-suite
+```
+
+#### **Execution & Pipeline Commands**
+```bash
+# Run pipelines with full configuration control
+mlpipe run [OPTIONS]
+
+# Pipeline options:
+mlpipe run                                              # Use defaults (xgb_basic pipeline)
+mlpipe run --pipeline PIPELINE_NAME                    # Specify pipeline implementation
+mlpipe run --config-path CONFIGS_DIR                   # Custom config directory
+mlpipe run --config-name CONFIG_FILE                   # Specific pipeline config file
+
+# Override any configuration values:
+mlpipe run --overrides OVERRIDE1 [OVERRIDE2 ...]
+mlpipe run --overrides model=xgb_classifier            # Swap model component
+mlpipe run --overrides data=higgs_uci                  # Swap data component
+mlpipe run --overrides model=decision_tree data=csv_demo  # Multiple overrides
+
+# Parameter-level overrides (dot notation):
+mlpipe run --overrides model.params.max_depth=8        # Model hyperparameters
+mlpipe run --overrides model.params.n_estimators=200 model.params.learning_rate=0.1
+mlpipe run --overrides data.params.test_size=0.2       # Data splitting parameters
+```
+
+### **Manager CLI (`mlpipe-manager`)**
+Standalone interface with simpler command structure:
+
+```bash
+# Discovery commands
+mlpipe-manager list                                     # List all available extras
+mlpipe-manager validate                                 # Validate extras configuration
+
+# Inspection commands  
+mlpipe-manager details EXTRA_NAME                      # Show details for specific extra
+mlpipe-manager preview EXTRA1 [EXTRA2 ...]            # Preview installation
+
+# Installation command
+mlpipe-manager install EXTRA1 [EXTRA2 ...] TARGET_DIR  # Install extras to directory
+
+# Examples:
+mlpipe-manager details model-xgb                       # Inspect XGBoost extra
+mlpipe-manager preview model-xgb preprocessing         # Preview combined installation
+mlpipe-manager install model-xgb ./my-project          # Install to project directory
+```
+
+### **Complete Usage Examples**
+
+#### **Basic Model Training**
+```bash
+# Quick start with defaults
+mlpipe run
+
+# Try different models on same data
+mlpipe run --overrides model=decision_tree
+mlpipe run --overrides model=random_forest
+mlpipe run --overrides model=svm
+
+# Switch datasets
+mlpipe run --overrides data=csv_demo
+mlpipe run --overrides data=higgs_uci
+```
+
+#### **Hyperparameter Tuning**
+```bash
+# XGBoost hyperparameter sweep
+mlpipe run --overrides model=xgb_classifier model.params.max_depth=6
+mlpipe run --overrides model=xgb_classifier model.params.max_depth=8
+mlpipe run --overrides model=xgb_classifier model.params.n_estimators=200 model.params.learning_rate=0.05
+
+# Decision tree parameters
+mlpipe run --overrides model=decision_tree model.params.max_depth=10 model.params.min_samples_split=5
+```
+
+#### **Data Processing Variations**
+```bash
+# Different preprocessing strategies  
+mlpipe run --overrides preprocessing=standard          # Standard scaling
+mlpipe run --overrides preprocessing=data_split        # Custom data splitting
+
+# Combined data and preprocessing changes
+mlpipe run --overrides data=higgs_uci preprocessing=standard model=xgb_classifier
+```
+
+#### **Project Creation Workflow**
+```bash
+# 1. Explore available components
+mlpipe list-extras
+mlpipe extra-details pipeline-xgb
+
+# 2. Preview what will be installed
+mlpipe preview-install pipeline-xgb
+
+# 3. Create project with selected components
+mlpipe install-local pipeline-xgb --target-dir ./hep-research
+cd ./hep-research && pip install -e .
+
+# 4. Run experiments with different configurations
+mlpipe run --overrides model.params.max_depth=8
+mlpipe run --overrides data=csv_demo
 ```
 
 ---
@@ -371,6 +477,76 @@ hep-ml-templates/
 
 ---
 
+---
+
+## 🗂️ Complete Component Reference
+
+### **Available Blocks** (`mlpipe list-blocks`)
+```
+eval.classification          # Classification evaluation metrics
+feature.column_selector      # Feature selection utilities
+ingest.csv                   # CSV data loading
+model.adaboost              # AdaBoost classifier
+model.ae_vanilla            # Vanilla autoencoder
+model.ae_variational        # Variational autoencoder
+model.cnn_hep               # Convolutional neural network
+model.decision_tree         # Decision tree classifier
+model.ensemble_voting       # Voting ensemble classifier
+model.mlp                   # Multi-layer perceptron
+model.random_forest         # Random forest classifier
+model.svm                   # Support vector machine
+model.transformer_hep       # Transformer architecture
+model.xgb_classifier        # XGBoost classifier
+preprocessing.data_split    # Data splitting utilities
+preprocessing.standard_scaler # Standard scaling preprocessing  
+train.sklearn               # Scikit-learn training orchestration
+```
+
+### **Available Configurations** (`mlpipe list-configs`)
+
+**Pipeline Configurations:**
+- `pipeline` - Default end-to-end pipeline
+
+**Data Configurations:**
+- `csv_demo` - Demo CSV dataset configuration
+- `custom_hep_example` - Custom HEP dataset example
+- `custom_test` - Custom test dataset
+- `higgs_uci` - HIGGS UCI dataset configuration
+- `medical_example` - Medical dataset example
+- `wine_quality_example` - Wine quality dataset example
+
+**Model Configurations:**
+- `adaboost` - AdaBoost classifier settings
+- `ae_lightning` - Lightning autoencoder settings
+- `ae_vanilla` - Vanilla autoencoder settings
+- `ae_variational` - Variational autoencoder settings
+- `cnn_hep` - CNN for HEP data settings
+- `decision_tree` - Decision tree parameters
+- `ensemble_voting` - Voting ensemble settings
+- `gnn_gat` - Graph Attention Network settings
+- `gnn_gcn` - Graph Convolutional Network settings
+- `gnn_pyg` - PyTorch Geometric GNN settings
+- `mlp` - Multi-layer perceptron settings
+- `random_forest` - Random forest parameters
+- `svm` - SVM classifier settings
+- `transformer_hep` - Transformer for HEP settings
+- `xgb_classifier` - XGBoost classifier parameters
+
+**Preprocessing Configurations:**
+- `data_split` - Data splitting parameters
+- `standard` - Standard scaling parameters
+
+**Feature Engineering Configurations:**
+- `column_selector` - Column selection settings
+- `custom_test_features` - Custom test features
+- `demo_features` - Demo feature engineering
+
+**Training Configurations:**
+- `sklearn` - Scikit-learn training parameters
+
+**Evaluation Configurations:**
+- `classification` - Classification evaluation metrics
+
 ## 🧪 Validation & Testing
 
 ### **Comprehensive Validation Results**
@@ -395,7 +571,7 @@ We welcome contributions of new models, datasets, preprocessing utilities, evalu
 
 ### **Adding a New Model**
 
-1. **Implement the Block:**
+1. **Implement the Model:**
 ```python
 from mlpipe.core.interfaces import ModelBlock
 from mlpipe.core.registry import register
@@ -486,7 +662,7 @@ mlpipe run --overrides model.params.n_estimators=200 model.params.learning_rate=
 **Q: How do I combine multiple overrides?**
 ```bash
 # Multiple components and parameters
-mlpipe run --overrides data=higgs_100k model=xgb_classifier preprocessing=stratified_split model.params.max_depth=8
+mlpipe run --overrides data=higgs_uci model=xgb_classifier preprocessing=data_split model.params.max_depth=8
 ```
 
 ### **Development Questions**

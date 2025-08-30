@@ -13,7 +13,7 @@ from mlpipe.core.registry import register
 
 
 @register("model.svm")
-class SVMBlock(ModelBlock):
+class SVMModel(ModelBlock):
     """
     Support Vector Machine - excellent for high-dimensional data.
 

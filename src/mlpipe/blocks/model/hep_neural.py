@@ -22,7 +22,7 @@ from mlpipe.core.registry import register
 
 
 @register("model.transformer_hep")
-class HEPTransformerBlock(ModelBlock):
+class HEPTransformerModel(ModelBlock):
     """
     Transformer model for particle sequence analysis.
 
@@ -255,7 +255,7 @@ class PositionalEncoding(nn.Module):
 
 
 @register("model.cnn_hep")
-class HEPCNNBlock(ModelBlock):
+class HEPCNNModel(ModelBlock):
     """
     1D CNN for HEP data analysis.
 

@@ -19,7 +19,7 @@ from mlpipe.core.registry import register
 
 
 @register("model.random_forest")
-class RandomForestBlock(ModelBlock):
+class RandomForestModel(ModelBlock):
     """
     Random Forest classifier - excellent baseline for HEP.
 
@@ -122,7 +122,7 @@ class RandomForestBlock(ModelBlock):
 
 
 @register("model.adaboost")
-class AdaBoostBlock(ModelBlock):
+class AdaBoostModel(ModelBlock):
     """
     AdaBoost classifier - adaptive boosting ensemble.
 
@@ -201,7 +201,7 @@ class AdaBoostBlock(ModelBlock):
 
 
 @register("model.ensemble_voting")
-class VotingEnsembleBlock(ModelBlock):
+class VotingEnsembleModel(ModelBlock):
     """
     Voting ensemble combining multiple models.
 

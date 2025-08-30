@@ -5,7 +5,7 @@ from mlpipe.core.registry import register
 
 
 @register("model.xgb_classifier")
-class XGBClassifierBlock(ModelBlock):
+class XGBClassifierModel(ModelBlock):
     """XGBoost classifier that works with or without configuration.
 
     Can be used standalone:
@@ -14,8 +14,12 @@ class XGBClassifierBlock(ModelBlock):
         predictions = model.predict(X)
 
     Or with custom config:
-        model = XGBClassifierBlock()
-        model.build({'n_estimators': 200, 'max_depth': 8})
+        model = XGBClassifierModel()
+        model.build({'n_estimators': 100, 'random_state': 42})
+
+        # Example using builder pattern
+        model = XGBClassifierModel()
+        model.build({'n_estimators': 200, 'max_depth': 6})
         model.fit(X, y)
     """
 

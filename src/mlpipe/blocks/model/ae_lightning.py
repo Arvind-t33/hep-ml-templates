@@ -21,7 +21,7 @@ from mlpipe.core.registry import register
 
 
 @register("model.ae_vanilla")
-class VanillaAutoencoderBlock(ModelBlock):
+class VanillaAutoencoderModel(ModelBlock):
     """
     Standard Autoencoder for dimensionality reduction and anomaly detection.
 
@@ -259,7 +259,7 @@ class VanillaAutoencoder(pl.LightningModule):
 
 
 @register("model.ae_variational")
-class VariationalAutoencoderBlock(ModelBlock):
+class VariationalAutoencoderModel(ModelBlock):
     """
     Variational Autoencoder for generative modeling and anomaly detection.
 
